@@ -29,6 +29,12 @@
       "id": "hzapi",
       "token": "hzapi",
       "name": "HZ-API"
+    },
+    {
+      "id": "GPTsgrandpa",
+      "token": "GPTsgrandpa",
+      "name": "GPT的爷",
+      "base_url": "https://catfk.com"
     }
   ]
 }

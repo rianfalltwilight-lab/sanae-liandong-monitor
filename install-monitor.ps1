@@ -34,7 +34,7 @@ $Action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument ('-NoProfi
 $Trigger = New-ScheduledTaskTrigger -AtLogOn -User $Identity
 $Principal = New-ScheduledTaskPrincipal -UserId $Identity -LogonType Interactive -RunLevel Limited
 $Settings = New-ScheduledTaskSettingsSet -MultipleInstances IgnoreNew -ExecutionTimeLimit ([TimeSpan]::Zero) -RestartCount 999 -RestartInterval (New-TimeSpan -Minutes 1) -StartWhenAvailable -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
-$null = Register-ScheduledTask -TaskName $TaskName -Action $Action -Trigger $Trigger -Principal $Principal -Settings $Settings -Description 'Watch four approved public WZYP shops every 20s; Sanae OneBot -> QQ 1092470719; DeepSeek title classification.' -ErrorAction Stop
+$null = Register-ScheduledTask -TaskName $TaskName -Action $Action -Trigger $Trigger -Principal $Principal -Settings $Settings -Description 'Watch configured public WZYP/CATFK shops every 20s; Sanae OneBot -> QQ 1092470719; DeepSeek title classification.' -ErrorAction Stop
 $null = Get-ScheduledTask -TaskName $TaskName -ErrorAction Stop
 if (Test-Path -LiteralPath (Join-Path $Destination 'installation.json')) {
     Copy-Item -LiteralPath (Join-Path $Destination 'installation.json') -Destination (Join-Path $Destination ('installation-incomplete-' + (Get-Date -Format yyyyMMdd-HHmmss) + '.json'))

@@ -1,4 +1,4 @@
-"""Read-only public wzyp.cn catalog adapter; no login or purchase operations.
+"""Read-only public shop catalog adapter; no login or purchase operations.
 
 The shop page uses /shopApi/Shop/goodsList with goods_type=card and no
 category_id to enumerate all listed cards. stock_count is numeric even when
@@ -13,7 +13,10 @@ import re
 import urllib.request
 from urllib.parse import urlsplit
 
-ENDPOINT = "https://wzyp.cn/shopApi/Shop/goodsList"
+DEFAULT_BASE_URL = "https://wzyp.cn"
+ALLOWED_BASE_URLS = frozenset((DEFAULT_BASE_URL, "https://catfk.com"))
+CATALOG_PATH = "/shopApi/Shop/goodsList"
+ENDPOINT = DEFAULT_BASE_URL + CATALOG_PATH
 MAX_RESPONSE_BYTES = 4 * 1024 * 1024
 PAGE_SIZE = 100
 MAX_PAGES = 20
@@ -76,7 +79,15 @@ def _price(value):
     return format(price, "f")
 
 
+def _base_url(shop):
+    base_url = shop.get("base_url", DEFAULT_BASE_URL)
+    if not isinstance(base_url, str) or base_url not in ALLOWED_BASE_URLS:
+        raise CatalogError("invalid_shop_base_url")
+    return base_url
+
+
 def parse_item(row, shop):
+    base_url = _base_url(shop)
     if not isinstance(row, dict) or row.get("goods_type") != "card":
         raise CatalogError("invalid_card_row")
     key = row.get("goods_key")
@@ -97,7 +108,7 @@ def parse_item(row, shop):
     return {
         "id": key, "shop_id": shop["id"], "shop_name": shop["name"],
         "title": title.strip(), "price": _price(row.get("price")), "stock": stock,
-        "url": "https://wzyp.cn/item/" + key,
+        "url": base_url + "/item/" + key,
         "active": row.get("status", 1) in (1, "1"),
         "description": _description(row.get("description")),
         "stock_display": "band" if mode == 0 else "count" if mode == 1 else "unknown",
@@ -105,9 +116,14 @@ def parse_item(row, shop):
 
 
 class _SameSiteRedirect(urllib.request.HTTPRedirectHandler):
+    def __init__(self, base_url=DEFAULT_BASE_URL):
+        super().__init__()
+        self.base_url = _base_url({"base_url": base_url})
+        self.netloc = urlsplit(self.base_url).netloc
+
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         target = urlsplit(newurl)
-        if target.scheme != "https" or target.netloc != "wzyp.cn":
+        if target.scheme != "https" or target.netloc != self.netloc:
             raise CatalogError("unexpected_catalog_redirect")
         return super().redirect_request(req, fp, code, msg, headers, newurl)
 
@@ -118,6 +134,7 @@ def fetch_shop(shop, config, *, opener=None):
     Total changes and duplicate IDs can mean pages shifted during a new listing.
     The caller retains the last good snapshot and retries on its next poll.
     """
+    base_url = _base_url(shop)
     for field in ("id", "name", "token"):
         if not isinstance(shop.get(field), str) or not shop[field].strip():
             raise CatalogError("invalid_shop_configuration")
@@ -127,14 +144,14 @@ def fetch_shop(shop, config, *, opener=None):
     if not 0 < timeout <= 30:
         raise CatalogError("invalid_request_timeout")
     opener = opener or urllib.request.build_opener(
-        urllib.request.ProxyHandler({}), _SameSiteRedirect())
+        urllib.request.ProxyHandler({}), _SameSiteRedirect(base_url))
     result = []
     seen = set()
     total = None
     for current in range(1, MAX_PAGES + 1):
         payload = {"token": shop["token"], "keywords": "", "goods_type": "card",
                    "current": current, "pageSize": PAGE_SIZE}
-        request = urllib.request.Request(ENDPOINT,
+        request = urllib.request.Request(base_url + CATALOG_PATH,
             data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
             headers={"Content-Type": "application/json; charset=utf-8",
                      "Accept": "application/json", "User-Agent": "SanaeShopMonitor/1.0"}, method="POST")

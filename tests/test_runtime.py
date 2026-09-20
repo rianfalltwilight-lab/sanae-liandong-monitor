@@ -51,6 +51,56 @@ class RuntimeTests(unittest.TestCase):
         self.poll()
         self.assertEqual(len(self.messages), 1)
 
+    def test_fifth_shop_keeps_four_shop_baseline_and_joins_minimum_after_restart(self):
+        shops = [{"id": f"existing-{index}", "name": f"原店{index}", "token": f"synthetic-token-{index}"}
+                 for index in range(4)]
+        catalogs = {}
+        for index, shop in enumerate(shops):
+            key = f"existing-item-{index}"
+            catalogs[shop["token"]] = [dict(product(stock=8, price=str(50 + index)),
+                id=key, shop_id=shop["id"], shop_name=shop["name"], url="https://wzyp.cn/item/" + key)]
+
+        def fetch_by_token(shop, _config):
+            return [dict(item) for item in catalogs[shop["token"]]]
+
+        self.config["shops"] = shops
+        self.monitor = Monitor(self.config, self.path, sender=self.send,
+                               fetcher=fetch_by_token, classifier_type=NoAI)
+        self.assertEqual(self.poll()["events"], 4)
+        baseline = load_state(self.path)
+        self.assertEqual(set(baseline["initialized_shops"]), {shop["id"] for shop in shops})
+        self.messages.clear()
+        self.mentions.clear()
+
+        fifth = {"id": "synthetic-fifth-shop", "name": "第五店", "token": "synthetic-fifth-token"}
+        fifth_item = dict(product(stock=9, price="22"), id="synthetic-fifth-item",
+            shop_id=fifth["id"], shop_name=fifth["name"],
+            url="https://wzyp.cn/item/synthetic-fifth-item")
+        catalogs[fifth["token"]] = [fifth_item]
+        self.config["shops"] = shops + [fifth]
+        self.monitor = Monitor(self.config, self.path, sender=self.send,
+                               fetcher=fetch_by_token, classifier_type=NoAI)
+        result = self.poll()
+        self.assertEqual((result["shops_ok"], result["events"]), (5, 1))
+        self.assertEqual(len(self.messages), 1)
+        self.assertEqual(self.mentions, [()])
+        self.assertIn("— 新上架（1）—", self.messages[0])
+        self.assertIn("当前有货最低价: ¥22 | 第五店", self.messages[0])
+        self.assertIn("购买: https://wzyp.cn/item/synthetic-fifth-item", self.messages[0])
+        for key, before in baseline["items"].items():
+            self.assertNotIn("购买: https://wzyp.cn/item/" + key, self.messages[0])
+            after = self.monitor.state["items"][key]
+            self.assertEqual({field: value for field, value in before.items() if field != "observed_epoch"},
+                             {field: value for field, value in after.items() if field != "observed_epoch"})
+        self.assertEqual(len(self.monitor.state["items"]), 5)
+        self.assertEqual(set(self.monitor.state["initialized_shops"]), {shop["id"] for shop in self.config["shops"]})
+
+        self.assertEqual(self.poll()["events"], 0)
+        self.monitor = Monitor(self.config, self.path, sender=self.send,
+                               fetcher=fetch_by_token, classifier_type=NoAI)
+        self.assertEqual(self.poll()["events"], 0)
+        self.assertEqual(len(self.messages), 1)
+
     def test_failed_catalog_retains_inventory_and_excludes_minimum(self):
         self.poll()
         def fail(*args):
