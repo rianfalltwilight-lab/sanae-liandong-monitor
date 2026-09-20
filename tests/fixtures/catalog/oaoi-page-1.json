@@ -1,0 +1,163 @@
+{
+  "code": 1,
+  "msg": "success",
+  "data": {
+    "total": 11,
+    "list": [
+      {
+        "goods_type": "card",
+        "goods_key": "9paacs",
+        "name": "Gork Super直充卡密（一个月）",
+        "price": 168,
+        "user": {
+          "token": "oaoi"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "o49dbz",
+        "name": "G歌5x team，9.20 17.30-18点弹性T",
+        "price": 30,
+        "user": {
+          "token": "oaoi"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "xr9420",
+        "name": "韩国-PLUS-icloud邮箱-保首登",
+        "price": 15,
+        "user": {
+          "token": "oaoi"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "3hml08",
+        "name": "G歌5x team，9.20 21.50-22点弹性T",
+        "price": 45,
+        "user": {
+          "token": "oaoi"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "vtkjmu",
+        "name": "(质保三十天) G plus 稳定号，销量第一",
+        "price": 113,
+        "user": {
+          "token": "oaoi"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "yxxaxi",
+        "name": "SuperGro-K 7天成品号【质保订阅6天】可使用 9-10 天 g-rok ！",
+        "price": 35,
+        "user": {
+          "token": "oaoi"
+        },
+        "extend": {
+          "stock_count": 10,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "lywzcl",
+        "name": "【菲区卡充】G Plus 官方充值 质保30天订阅",
+        "price": 129,
+        "user": {
+          "token": "oaoi"
+        },
+        "extend": {
+          "stock_count": 7,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "fvuu9f",
+        "name": "Gemini Pro 12个月pixel成品号需要绑定手机（部分封禁需申诉使用）",
+        "price": 10,
+        "user": {
+          "token": "oaoi"
+        },
+        "extend": {
+          "stock_count": 1833,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "bs2n3w",
+        "name": "Outlook Free（已接马 | 反代 | Codex | 网页）| 美国家宽 | 长效邮箱",
+        "price": 0.9,
+        "user": {
+          "token": "oaoi"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 1
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "v4u5sn",
+        "name": "【Ch-at Free号】已绑手机+微软邮箱可接马 美国家宽|带2FA｜Codex/网页双用|支持5.6-Terra",
+        "price": 1,
+        "user": {
+          "token": "oaoi"
+        },
+        "extend": {
+          "stock_count": 185,
+          "show_stock_type": 1
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "fdy9st",
+        "name": "美区|gemini pro不足一年或者18个月混装|老邮箱|（（不包 谷歌云大部分有）主页备用卡网",
+        "price": 18,
+        "user": {
+          "token": "oaoi"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      }
+    ]
+  }
+}

@@ -1,0 +1,569 @@
+{
+  "code": 1,
+  "msg": "success",
+  "data": {
+    "total": 140,
+    "list": [
+      {
+        "goods_type": "card",
+        "goods_key": "f884wr",
+        "name": "【长期稳定】 iCloud 邮箱子号｜可回信+无限收件｜ (全程质保30天) 非分裂邮箱 支持URL/网站",
+        "price": 0.44,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 1
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "2js03g",
+        "name": "G Plus 成品号（KaKao新渠道）",
+        "price": 28.87,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "b3ebjt",
+        "name": "outlook子邮箱 OAuth2令牌号【收件专用，买前请看商品介绍】",
+        "price": 0.04,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "ymbhjv",
+        "name": "💎 Figma 官方正规教育认证（1年高校高等教育版 / 全 AI 解锁）",
+        "price": 36.04,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 36,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "my1p6t",
+        "name": "微软邮箱长效-outlook/hotmail oauth2双令牌 refresh_token号 imap/graph",
+        "price": 0.08,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 1186,
+          "show_stock_type": 1
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "3mozju",
+        "name": "Cursor Free Auto 白号",
+        "price": 0.9,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 3708,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "5boirx",
+        "name": "codex接马 美国实卡（渠道3 有效期25天左右，一般可绑3个号，会用的拍）",
+        "price": 3.8,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 65,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "3gixvd",
+        "name": "codex接马 美国实卡 （渠道3 有效期5-15天，一般可绑3个号，会用的拍）",
+        "price": 3.1,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 19,
+          "show_stock_type": 1
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "hmgcm1",
+        "name": "微软Outlook Hotmail空白邮箱 长效 可网页取件接马",
+        "price": 0.39,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 54,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "ytl3e4",
+        "name": "🔥【最新渠道】OPenAI Plus成品号 月卡(质保下单半小时内首登)",
+        "price": 25.3,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "p6n67a",
+        "name": "【未接马】PLUS成品号🚀icloud/gmail📮-家宽注册-质保半小内首次登录-看详情不会用别买",
+        "price": 20.4,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 1
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "8p3nx1",
+        "name": "谷歌邮件 成品 Plus（质保首登）",
+        "price": 13.75,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "dhu8pa",
+        "name": "team母号+子号 2人席位",
+        "price": 278.25,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 218,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "7w6ego",
+        "name": "Gemini Pro一年，Pixel自助开通卡密 包绑卡",
+        "price": 6.78,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "88rta6",
+        "name": "谷歌/iCloud邮件 成品 Plus（质保1天）-Momo",
+        "price": 29.5,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "4p8856",
+        "name": "OpenAI普通账号｜验证码直登｜白号｜免费账号｜长效微软邮箱交付｜高权重家宽｜独享号｜",
+        "price": 1.04,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 396,
+          "show_stock_type": 1
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "btnrrp",
+        "name": "gro4.6 build号 质保一周",
+        "price": 0.1,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 9451,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "mpolnf",
+        "name": "gro-Super gro 30刀1个月卡 【30天质保订阅，不质保封号】秒冲不排队，可开发票",
+        "price": 236.5,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 95,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "ogcwsk",
+        "name": "【直登普号】 gro AI 长效微软邮箱  账密 SSO  直登",
+        "price": 0.4,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 1
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "9xo766",
+        "name": "Codex 接马 智利 【单次接马】",
+        "price": 1.67,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 110,
+          "show_stock_type": 1
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "fqutnv",
+        "name": "Codex 接马 美区 【单次接马】",
+        "price": 2.16,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 521,
+          "show_stock_type": 1
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "9vdh69",
+        "name": "【8.24🚀新鲜】PLUS独享，成品号|质保首登|",
+        "price": 14.07,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "q39mk4",
+        "name": "【8.23🍑新鲜直供】GBTPLUS独享，未接马成品号|质保首登|",
+        "price": 31.86,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "66bl6e",
+        "name": "codex 一次性接马 包接到",
+        "price": 1.68,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "x6r1gd",
+        "name": "plus（带rt带帐密已接马）质保1h 超时间投诉拉黑玩不起别买，反代和web都能用！！！cpa格式 有转换格式网站",
+        "price": 23,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "idf92k",
+        "name": "谷歌/iCloud邮件 成品 Plus（质保首登）- UPI",
+        "price": 30.8,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 45,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "uybmbr",
+        "name": "codex长效接马一个月|美国实卡|可自助换号5次",
+        "price": 4.68,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 481,
+          "show_stock_type": 1
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "fcr998",
+        "name": "plus成品号-域名邮箱-未接马-印度UPI",
+        "price": 22,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 5,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "9z2bwq",
+        "name": "🔥美国实卡长效接马codex绑定注册通用20-30天【质保不来码】PLUS接马codex接马codex长效基本可以三绑",
+        "price": 3.26,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 381,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "rce9ix",
+        "name": "🔥美国实卡长效接马codex绑定注册通用20-30天【质保不来码】PLUS接马codex接马codex长效 基本可以三绑",
+        "price": 3.26,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 400,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "ggmams",
+        "name": "codex一次性接马|美国实卡|5次自助换号",
+        "price": 1.54,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 918,
+          "show_stock_type": 1
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "z5poia",
+        "name": "codex接马美区单次",
+        "price": 1.69,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 264,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "7up6x9",
+        "name": "加拿大G/Codex接马有效期30-90天【质保首码】",
+        "price": 2.75,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 66,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "2eyxky",
+        "name": "codex接🐎英区30天（从使用开始计算30天可续租，可囤卡）",
+        "price": 6.6,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 130,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "ywzjju",
+        "name": "G free成品号 icloud邮箱 (未接马)",
+        "price": 0.46,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "1rm3t5",
+        "name": "G Free| 双-接-码+RT| 可用codex",
+        "price": 0.75,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 4,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "jo0bjk",
+        "name": "G Free 成品号全格式 \tOutlook邮箱｜已接马｜可刷新 RT｜支持codex 反代",
+        "price": 1.01,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 168,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "5goed1",
+        "name": "G Free-账密 AT-长效outlook-适合各类业务(可网页，除Codex)",
+        "price": 0.2,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 250,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "edv4el",
+        "name": "Codex 接马 高质量 包接马成功 【全自动自助系统】",
+        "price": 0.99,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 277,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "k8abb6",
+        "name": "iCloud隐私邮箱，发货形式为邮箱--取码url",
+        "price": 0.84,
+        "user": {
+          "token": "13QL6FLR"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      }
+    ]
+  }
+}

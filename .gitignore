@@ -1,0 +1,33 @@
+# Local configuration and credentials
+/config.json
+/secrets*.json
+.env
+.env.*
+*.pem
+*.key
+
+# Live state, receipts, merchant snapshots and deployment evidence
+/state/
+/logs/
+/backups/
+/research/
+/evidence/
+/installation*.json
+/DELIVERY.md
+/probe_deepseek.py
+/verify_live.py
+
+# Rebuildable Python output
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Editors and OS metadata
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

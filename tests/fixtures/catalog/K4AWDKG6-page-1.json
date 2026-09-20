@@ -1,0 +1,541 @@
+{
+  "code": 1,
+  "msg": "success",
+  "data": {
+    "total": 38,
+    "list": [
+      {
+        "goods_type": "card",
+        "goods_key": "52mleh",
+        "name": "5x team  谷歌邮箱（7H轮转-质保首登1小时）22:00踢",
+        "price": 60,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "c9hk42",
+        "name": "5x team  谷歌邮箱（6H轮转-质保首登1小时）19:00踢",
+        "price": 55,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "50xhae",
+        "name": "5x team  谷歌邮箱（夜车-质保首登1小时）8：00踢",
+        "price": 55,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "tytxtc",
+        "name": "5x team 谷歌邮箱（3H轮转-质保首登1小时）12:00踢",
+        "price": 48,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "4e41jw",
+        "name": "5x team  谷歌邮箱（2H轮转-质保首登30分钟）10:20踢",
+        "price": 41,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "u25fp0",
+        "name": "5x team  谷歌邮箱（5H轮转-质保首登1小时）15:00踢",
+        "price": 68,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "m0n666",
+        "name": "5x team  谷歌邮箱（4H轮转-质保首登1小时）14:30踢",
+        "price": 48,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "djz40z",
+        "name": "IC，格式： 邮箱----密码----2FA，已注册gqt",
+        "price": 0.15,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 650,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "bi64on",
+        "name": "【自营招代理】 Plus成品号-已接🐎（质保5天）",
+        "price": 55,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 18,
+          "show_stock_type": 1
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "n31ofv",
+        "name": "4h轮转gmail邮箱 5x team  晚上 11点30踢      给账密",
+        "price": 45,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 1
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "akotjb",
+        "name": "长效5x team 晚上23:40左右踢 给账密",
+        "price": 83,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 1
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "7mqwhj",
+        "name": "【自营招代理】 Plus成品号-已接🐎（无质保，质保仅半小时首登）",
+        "price": 26,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 20,
+          "show_stock_type": 1
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "fa97oc",
+        "name": "5x team 质保2h（超长轮转5h）9月20日14:30左右踢",
+        "price": 31,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "m1yrpz",
+        "name": "5x team （非轮转质保2h）9月20日00:10发车",
+        "price": 75,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "s1qmzz",
+        "name": "5x team 质保1h（轮转5h）9月20日19:30左右踢",
+        "price": 46,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "ctxy7n",
+        "name": "team5x 3h速刷 到21.30T",
+        "price": 50,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 1
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "hbfaq9",
+        "name": "team5x 过夜车 到早8-9点踢",
+        "price": 50,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 1
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "490ulc",
+        "name": "team5X 超级长效 不轮转 用到空间死！！！",
+        "price": 68.25,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "mnpus2",
+        "name": "5X 2h速刷 16点T gmail",
+        "price": 33.88,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "ra8p6q",
+        "name": "5x team 过夜车🚗（明天早上9.30踢） 给 账密 2FA",
+        "price": 65,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 1
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "htq4m5",
+        "name": "Team-json【Gmail】【10点左右踢】【散户勿拍】",
+        "price": 55,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "1mdiqt",
+        "name": "team 5x （首车）长效 包夜车早八踢",
+        "price": 70,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "7sxpzr",
+        "name": "team 5x 10点踢  gmail邮箱",
+        "price": 45,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "a8l46x",
+        "name": "谷歌5x team 【21点踢人】",
+        "price": 48,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 1
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "km7aw1",
+        "name": "非轮转 5x team 【不t人等空间炸】",
+        "price": 60,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 1
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "rnharp",
+        "name": "plus 已接 可网页可codex【质保30分钟】",
+        "price": 18,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 1
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "p0ai6q",
+        "name": "5x team gmail邮箱 账密2fa 20点踢 【质保30分钟】",
+        "price": 50,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 1
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "cgcrev",
+        "name": "长效5x team 不踢 给 账密 2FA（用到死）",
+        "price": 68,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 1
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "g3xah3",
+        "name": "5x team 3H踢空间（3H踢空间） 给 账密 2FA",
+        "price": 53,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 1
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "gmgilt",
+        "name": "5x team 4H踢空间（4H踢空间） 给 账密 2FA",
+        "price": 67,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 1
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "dyexsr",
+        "name": "5x team（晚上9.30踢空间） 给 账密 2FA",
+        "price": 63,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 1
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "20fmga",
+        "name": "反代教程【不要下单，直接点开看就行】记得看到最后",
+        "price": 10000,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "rvdntf",
+        "name": "5x team 9H踢空间（晚上9点踢空间） 给 账密 2FA",
+        "price": 65,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 1
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "31dju4",
+        "name": "G歌5x team，9.20 17.30-18点弹性T",
+        "price": 35,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "4flcf7",
+        "name": "G歌5x team，9.20 21.50-22点弹性T",
+        "price": 50,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "e6jkmx",
+        "name": "5xTeam-json【散户勿拍】【渠道2-gmail】【7点左右踢】",
+        "price": 56.47,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 1
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "w7dnq6",
+        "name": "5xTeam-json【散户勿拍】【渠道1-outlook】【5.30左右踢】",
+        "price": 23,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 1
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "dj4tiz",
+        "name": "5x-Team-subjson格式【散户勿拍】【渠道1-gmail】【10点40左右踢】",
+        "price": 50,
+        "user": {
+          "token": "K4AWDKG6"
+        },
+        "extend": {
+          "stock_count": 32,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      }
+    ]
+  }
+}

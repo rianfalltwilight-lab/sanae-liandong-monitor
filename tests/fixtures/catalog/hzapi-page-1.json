@@ -1,0 +1,205 @@
+{
+  "code": 1,
+  "msg": "success",
+  "data": {
+    "total": 14,
+    "list": [
+      {
+        "goods_type": "card",
+        "goods_key": "enzo1z",
+        "name": "codex plus 越南实卡 一卡一绑 买过的都知道质量",
+        "price": 48,
+        "user": {
+          "token": "hzapi"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "g53nek",
+        "name": "Codex Plus 泰国渠道 质保25天",
+        "price": 85,
+        "user": {
+          "token": "hzapi"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "m6l53p",
+        "name": "5x team 席位临期商业模型焚决",
+        "price": 1.88,
+        "user": {
+          "token": "hzapi"
+        },
+        "extend": {
+          "stock_count": 135,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "djfp9r",
+        "name": "🔥美国实卡长效接马codex绑定注册通用20-30天【质保不来码】PLUS接马codex接马codex长效 基本可以三绑",
+        "price": 2.99,
+        "user": {
+          "token": "hzapi"
+        },
+        "extend": {
+          "stock_count": 400,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "s9cudb",
+        "name": "【直充自己账号秒到】|豆包会员月卡30天|标准版68元套餐",
+        "price": 5.4,
+        "user": {
+          "token": "hzapi"
+        },
+        "extend": {
+          "stock_count": 104,
+          "show_stock_type": 1
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "w62efa",
+        "name": "【只有资格号可以充】OpenAI Pro20x正价代充【带官方账单】【质保一个月】",
+        "price": 1060,
+        "user": {
+          "token": "hzapi"
+        },
+        "extend": {
+          "stock_count": 14,
+          "show_stock_type": 1
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "6wu5kk",
+        "name": "【质保一个月】OpenAI Plus正价代充【带官方账单】",
+        "price": 122.1,
+        "user": {
+          "token": "hzapi"
+        },
+        "extend": {
+          "stock_count": 367,
+          "show_stock_type": 1
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "rhjkmf",
+        "name": "自营｜5x team｜G邮｜轮转号｜23:10踢｜账密2fa｜看清再下单",
+        "price": 58,
+        "user": {
+          "token": "hzapi"
+        },
+        "extend": {
+          "stock_count": 8,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "ak0uds",
+        "name": "codex长效接马  25-50天 包接到",
+        "price": 3.75,
+        "user": {
+          "token": "hzapi"
+        },
+        "extend": {
+          "stock_count": 12,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "tifpf4",
+        "name": "codex 一次性接马 包接到",
+        "price": 1.54,
+        "user": {
+          "token": "hzapi"
+        },
+        "extend": {
+          "stock_count": 0,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "4emttb",
+        "name": "codex接🐎 美区成功率99.99接马",
+        "price": 1.97,
+        "user": {
+          "token": "hzapi"
+        },
+        "extend": {
+          "stock_count": 110,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "b5cvp3",
+        "name": "codex长效接马一个月|美国实卡|可自助换号5次",
+        "price": 4.29,
+        "user": {
+          "token": "hzapi"
+        },
+        "extend": {
+          "stock_count": 481,
+          "show_stock_type": 1
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "ri7qvq",
+        "name": "OpenAI Codex 手机接马（美国实体号 - 质保1次成功接马）",
+        "price": 1.87,
+        "user": {
+          "token": "hzapi"
+        },
+        "extend": {
+          "stock_count": 1540,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      },
+      {
+        "goods_type": "card",
+        "goods_key": "70g5zh",
+        "name": "codex-接马-美区高质量",
+        "price": 1.54,
+        "user": {
+          "token": "hzapi"
+        },
+        "extend": {
+          "stock_count": 82,
+          "show_stock_type": 0
+        },
+        "description": "<p>Offline catalog fixture.</p>"
+      }
+    ]
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "sanae_root": "E:\\Minecarft\\.E3_LLBot_Sanae",
+  "group_id": 1092470719,
+  "onebot_url": "http://127.0.0.1:3002",
+  "poll_seconds": 20,
+  "request_timeout": 10,
+  "max_backoff_seconds": 600,
+  "pending_ttl_seconds": 120,
+  "deepseek_model": "deepseek-flash",
+  "deepseek_timeout": 12,
+  "shops": [
+    {
+      "id": "K4AWDKG6",
+      "token": "K4AWDKG6",
+      "name": "商家6635"
+    },
+    {
+      "id": "13QL6FLR",
+      "token": "13QL6FLR",
+      "name": "RenWin"
+    },
+    {
+      "id": "oaoi",
+      "token": "oaoi",
+      "name": "咕咕嘎嘎"
+    },
+    {
+      "id": "hzapi",
+      "token": "hzapi",
+      "name": "HZ-API"
+    }
+  ]
+}
