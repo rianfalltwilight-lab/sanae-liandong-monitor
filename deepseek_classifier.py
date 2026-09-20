@@ -191,10 +191,10 @@ class Classifier:
             succeeded, value = mailbox.get(timeout=max(0.001, deadline - time.monotonic()))
         except queue.Empty:
             raise TimeoutError() from None
-        if not succeeded:
-            raise value
         # Receiving the result is sufficient: the worker has no remaining I/O.
         self._worker = None
+        if not succeeded:
+            raise value
         return value
 
     def _request(self, batch: list[tuple[str, dict]], timeout: float) -> list[bool]:

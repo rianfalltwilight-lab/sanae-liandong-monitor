@@ -3,6 +3,7 @@
 import io
 import json
 from pathlib import Path
+import queue
 import sys
 import tempfile
 import threading
@@ -158,6 +159,38 @@ class ClassifierTests(unittest.TestCase):
         self.opener.answer = None
         self.assertEqual(classifier.classify([self.item()]), {"ctxy7n": True})
         self.assertEqual(len(self.opener.calls), 2)
+
+    def test_delivered_failure_does_not_block_retry_while_old_thread_is_alive(self):
+        release = threading.Event()
+        failed_workers = []
+
+        class DeliveredErrorQueue(queue.Queue):
+            def put(self, value, block=True, timeout=None):
+                if not value[0]:
+                    failed_workers.append(threading.current_thread())
+                super().put(value, block=block, timeout=timeout)
+                if not value[0]:
+                    # Hold the worker after delivery; its provider I/O is over.
+                    release.wait()
+
+        self.opener.answer = ValueError("synthetic provider failure")
+        classifier = self.classifier()
+        try:
+            with patch("deepseek_classifier.queue.Queue", DeliveredErrorQueue):
+                with self.assertLogs("deepseek_classifier", level="WARNING"):
+                    self.assertEqual(classifier.classify([self.item()]), {"ctxy7n": None})
+                self.assertEqual(len(failed_workers), 1)
+                self.assertTrue(failed_workers[0].is_alive())
+                for entry in self.cache.values():
+                    entry["retry_after"] = time.time() - 1
+                self.opener.answer = None
+                self.assertEqual(classifier.classify([self.item()]), {"ctxy7n": True})
+                self.assertEqual(len(self.opener.calls), 2)
+                self.assertTrue(failed_workers[0].is_alive())
+        finally:
+            release.set()
+            for worker in failed_workers:
+                worker.join(timeout=1)
 
     def test_non_stop_finish_reason_rejects_even_complete_looking_json(self):
         for reason in ("length", "tool_calls", "content_filter", None):
