@@ -5,7 +5,7 @@ import tempfile
 import time
 import unittest
 
-from shop_monitor import Monitor, load_state, send_onebot
+from shop_monitor import Monitor, load_state, send_onebot, send_private_onebot
 
 
 def product(stock=4, price="50", title="team5x 3h速刷", target=True):
@@ -279,6 +279,43 @@ class RuntimeTests(unittest.TestCase):
         self.poll()
         self.assertEqual(self.mentions, [])
         self.assertEqual(self.monitor.state["pending"], [])
+
+    def test_private_forward_is_plain_text_and_fixed_recipient(self):
+        class Opener:
+            def open(inner, request, timeout):
+                inner.body = json.loads(request.data)
+                return io.BytesIO(b'{"status":"ok","retcode":0,"data":{"message_id":9}}')
+        opener = Opener()
+        config = dict(self.config, private_forward_qq="2731538103")
+        self.assertEqual(send_private_onebot(config, "提醒[CQ:at,qq=all]", opener), 9)
+        self.assertEqual(opener.body["user_id"], 2731538103)
+        self.assertEqual(opener.body["message"], [{"type":"text", "data":{"text":"提醒[CQ:at,qq=all]"}}])
+        with self.assertRaises(ValueError):
+            send_private_onebot(dict(self.config, private_forward_qq="1"), "x", opener)
+
+    def test_private_failure_retries_without_duplicate_group_message(self):
+        config = dict(self.config, private_forward_qq="2731538103")
+        private_calls = []
+        def private_fail(*args):
+            private_calls.append("fail")
+            raise RuntimeError("private down")
+        self.monitor = Monitor(config, self.path, sender=self.send,
+            fetcher=lambda s, c: [dict(i) for i in self.catalog], classifier_type=NoAI)
+        self.monitor.private_sender = private_fail
+        self.poll()
+        self.assertEqual(len(self.messages), 1)
+        self.assertEqual(len(load_state(self.path)["pending"]), 1)
+        self.assertTrue(load_state(self.path)["pending"][0]["group_sent"])
+        def private_ok(*args):
+            private_calls.append("ok")
+            return 77
+        self.monitor.private_sender = private_ok
+        self.monitor.deliver(time.time())
+        self.assertEqual(len(self.messages), 1)
+        self.assertEqual(private_calls, ["fail", "ok"])
+        self.assertEqual(self.monitor.state["pending"], [])
+        recipients = [d["recipient"] for d in self.monitor.state["deliveries"]]
+        self.assertEqual(recipients, ["group", "2731538103"])
 
     def test_real_at_segments_and_only_authorized_targets(self):
         class Opener:

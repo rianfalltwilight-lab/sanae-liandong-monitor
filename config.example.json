@@ -40,6 +40,14 @@
       "id": "chenrui19",
       "token": "chenrui19",
       "name": "商家5297"
+    },
+    {
+      "id": "mdkj",
+      "kind": "mdkj",
+      "name": "麻豆科技",
+      "base_url": "https://mdkj.team",
+      "token_file": "E:\\Minecarft\\.E3_LLBot_Sanae\\secrets\\mdkj-customer-token.txt"
     }
-  ]
+  ],
+  "private_forward_qq": "2731538103"
 }

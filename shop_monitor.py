@@ -16,13 +16,21 @@ import urllib.request
 
 from monitor_core import rule_classify, make_events, render_messages
 from deepseek_classifier import Classifier
-from shop_source import fetch_shop
+from shop_source import fetch_shop as fetch_catalog_shop
+from mdkj_source import fetch_shop as fetch_mdkj_shop
 from priority_alert import qualifies, render_priority
 
 LOG = logging.getLogger("liandong")
 CST = timezone(timedelta(hours=8))
 PRIORITY_MENTIONS = ("3294692833", "1920924896")
+PRIVATE_FORWARD_QQ = "2731538103"
 NOTIFICATION_POLICY = "listed-or-last-five-v1"
+
+
+def fetch_shop(shop, config, *, opener=None):
+    if shop.get("kind") == "mdkj":
+        return fetch_mdkj_shop(shop, config, opener=opener)
+    return fetch_catalog_shop(shop, config, opener=opener)
 
 
 def item_signature(item):
@@ -78,6 +86,29 @@ def send_onebot(config, text, opener=None, *, mentions=()):
     return message_id
 
 
+def send_private_onebot(config, text, opener=None):
+    """Send a plain-text copy to the separately configured private QQ target."""
+    if config.get("private_forward_qq") != PRIVATE_FORWARD_QQ:
+        raise ValueError("unauthorized_private_forward")
+    if config["onebot_url"] != "http://127.0.0.1:3002":
+        raise ValueError("unexpected_onebot_endpoint")
+    payload = {"user_id": int(PRIVATE_FORWARD_QQ),
+               "message": [{"type": "text", "data": {"text": text}}],
+               "auto_escape": True}
+    request = urllib.request.Request(config["onebot_url"] + "/send_private_msg",
+        data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
+        headers={"Content-Type": "application/json; charset=utf-8"}, method="POST")
+    opener = opener or urllib.request.build_opener(urllib.request.ProxyHandler({}))
+    with opener.open(request, timeout=10) as response:
+        result = json.load(response)
+    if result.get("status") != "ok" or result.get("retcode") not in (0, "0"):
+        raise RuntimeError("onebot_private_business_failure")
+    message_id = (result.get("data") or {}).get("message_id")
+    if message_id is None:
+        raise RuntimeError("onebot_private_missing_receipt")
+    return message_id
+
+
 class Monitor:
     def __init__(self, config, state_path, *, sender=send_onebot, fetcher=fetch_shop,
                  classifier_type=Classifier, dry_run=False):
@@ -89,7 +120,13 @@ class Monitor:
             self.state["pending"] = []
             self.state.pop("priority_seen", None)
             self.state["notification_policy"] = NOTIFICATION_POLICY
+        # Existing queued entries predate private forwarding; keep them group-only.
+        if self.config.get("private_forward_qq") == PRIVATE_FORWARD_QQ:
+            for entry in self.state["pending"]:
+                entry.setdefault("group_sent", False)
+                entry.setdefault("private_sent", True)
         self.sender, self.fetcher = sender, fetcher
+        self.private_sender = send_private_onebot
         self.dry_run = dry_run
         self.classifier = classifier_type(config, self.state["classifier_cache"])
 
@@ -111,6 +148,7 @@ class Monitor:
                 self.state["pending"].append({"text": text, "created": now,
                     "id": hashlib.sha256((str(now) + text).encode()).hexdigest()[:20], "attempts": 0,
                     "mentions": list(PRIORITY_MENTIONS) if priority else [],
+                    "group_sent": False, "private_sent": False,
                     "events": [{"kind": e["kind"], "item_id": e["item"]["id"], "old": e.get("old")} for e in events],
                     "refs": {e["item"]["id"]: item_signature(e["item"]) for e in events}})
             LOG.info("events=%d messages=%d priority=%s", len(events), len(messages), priority)
@@ -151,12 +189,19 @@ class Monitor:
                     continue
                 if kind in ("new", "low_stock"):
                     events.append({"kind": kind, "item": item, "old": event.get("old")})
+            old_pending = pending
             self.state["pending"] = []
             urgent = [e for e in events if qualifies(e["item"])]
             urgent_ids = {e["item"]["id"] for e in urgent}
             self.enqueue(urgent, fresh, now, priority=True, recovery=True)
             self.enqueue([e for e in events if e["item"]["id"] not in urgent_ids], fresh, now, recovery=True)
+            for entry in self.state["pending"]:
+                matches = [old for old in old_pending if set(entry.get("refs", {})) & set(old.get("refs", {}))]
+                if matches:
+                    entry["group_sent"] = all(old.get("group_sent", False) for old in matches)
+                    entry["private_sent"] = all(old.get("private_sent", False) for old in matches)
             self.save()
+        private_enabled = self.config.get("private_forward_qq") == PRIVATE_FORWARD_QQ
         while self.state["pending"]:
             entry = self.state["pending"][0]
             if now - entry["created"] > self.config.get("pending_ttl_seconds", 120):
@@ -164,27 +209,43 @@ class Monitor:
                 self.state["pending"].pop(0)
                 self.save()
                 continue
-            if self.dry_run:
-                print(entry["text"], flush=True)
-                receipt = "DRY_RUN"
-            else:
-                try:
-                    if entry.get("mentions"):
-                        receipt = self.sender(self.config, entry["text"], mentions=tuple(entry["mentions"]))
-                    else:
-                        receipt = self.sender(self.config, entry["text"])
-                except Exception as exc:
-                    entry["attempts"] += 1
-                    self.state["delivery_error"] = type(exc).__name__
-                    LOG.warning("delivery_failed type=%s", type(exc).__name__)
-                    self.save()
-                    break
+            try:
+                if self.dry_run:
+                    if not entry.get("group_sent"):
+                        print(entry["text"], flush=True)
+                        entry["group_sent"] = True
+                    if private_enabled:
+                        entry["private_sent"] = True
+                else:
+                    if not entry.get("group_sent"):
+                        if entry.get("mentions"):
+                            receipt = self.sender(self.config, entry["text"], mentions=tuple(entry["mentions"]))
+                        else:
+                            receipt = self.sender(self.config, entry["text"])
+                        entry["group_sent"] = True
+                        self.state["deliveries"].append({"id": entry["id"], "recipient": "group",
+                                                          "message_id": receipt, "sent_at": now,
+                                                          "mentions": entry.get("mentions", [])})
+                        self.state["deliveries"] = self.state["deliveries"][-400:]
+                        self.save()
+                    if private_enabled and not entry.get("private_sent"):
+                        receipt = self.private_sender(self.config, entry["text"])
+                        entry["private_sent"] = True
+                        self.state["deliveries"].append({"id": entry["id"], "recipient": PRIVATE_FORWARD_QQ,
+                                                          "message_id": receipt, "sent_at": now, "mentions": []})
+                        self.state["deliveries"] = self.state["deliveries"][-400:]
+                        self.save()
+            except Exception as exc:
+                entry["attempts"] = entry.get("attempts", 0) + 1
+                self.state["delivery_error"] = type(exc).__name__
+                LOG.warning("delivery_failed recipient=%s type=%s",
+                            PRIVATE_FORWARD_QQ if entry.get("group_sent") else "group", type(exc).__name__)
+                self.save()
+                break
             self.state.pop("delivery_error", None)
-            self.state["deliveries"].append({"id": entry["id"], "message_id": receipt, "sent_at": now,
-                                              "mentions": entry.get("mentions", [])})
-            self.state["deliveries"] = self.state["deliveries"][-200:]
             self.state["pending"].pop(0)
-            LOG.info("delivered id=%s message_id=%s", entry["id"], receipt)
+            LOG.info("delivered id=%s group=%s private=%s", entry["id"], entry.get("group_sent"),
+                     entry.get("private_sent", not private_enabled))
             self.save()
 
     def poll(self, *, use_ai=True):

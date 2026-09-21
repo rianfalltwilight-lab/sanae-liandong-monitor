@@ -4,7 +4,7 @@ $ErrorActionPreference = 'Stop'
 $Source = Split-Path -Parent $MyInvocation.MyCommand.Path
 $Destination = 'E:\Minecarft\.E3_LLBot_Sanae\liandong-monitor'
 $TaskName = 'Sanae Liandong Shop Monitor'
-$Files = @('config.json', 'monitor_core.py', 'deepseek_classifier.py', 'shop_source.py', 'shop_monitor.py', 'priority_alert.py', 'start-monitor.ps1', 'stop-monitor.ps1', 'README.md')
+$Files = @('config.json', 'monitor_core.py', 'deepseek_classifier.py', 'shop_source.py', 'mdkj_source.py', 'shop_monitor.py', 'priority_alert.py', 'start-monitor.ps1', 'stop-monitor.ps1', 'README.md')
 foreach ($Name in $Files) {
     if (-not (Test-Path -LiteralPath (Join-Path $Source $Name))) { throw "Missing source: $Name" }
 }
