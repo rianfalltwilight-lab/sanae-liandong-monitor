@@ -92,9 +92,10 @@ def send_private_onebot(config, text, opener=None):
         raise ValueError("unauthorized_private_forward")
     if config["onebot_url"] != "http://127.0.0.1:3002":
         raise ValueError("unexpected_onebot_endpoint")
-    payload = {"user_id": int(PRIVATE_FORWARD_QQ),
-               "message": [{"type": "text", "data": {"text": text}}],
-               "auto_escape": True}
+    # Keep private sends compatible with Sanae's own OneBot helper: a plain
+    # string is accepted by both OneBot implementations and avoids treating
+    # ordinary alert text as a message-segment payload.
+    payload = {"user_id": int(PRIVATE_FORWARD_QQ), "message": text}
     request = urllib.request.Request(config["onebot_url"] + "/send_private_msg",
         data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
         headers={"Content-Type": "application/json; charset=utf-8"}, method="POST")

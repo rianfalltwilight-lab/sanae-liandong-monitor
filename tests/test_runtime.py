@@ -289,7 +289,8 @@ class RuntimeTests(unittest.TestCase):
         config = dict(self.config, private_forward_qq="2731538103")
         self.assertEqual(send_private_onebot(config, "提醒[CQ:at,qq=all]", opener), 9)
         self.assertEqual(opener.body["user_id"], 2731538103)
-        self.assertEqual(opener.body["message"], [{"type":"text", "data":{"text":"提醒[CQ:at,qq=all]"}}])
+        self.assertEqual(opener.body["message"], "提醒[CQ:at,qq=all]")
+        self.assertNotIn("auto_escape", opener.body)
         with self.assertRaises(ValueError):
             send_private_onebot(dict(self.config, private_forward_qq="1"), "x", opener)
 
