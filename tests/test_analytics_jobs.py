@@ -160,7 +160,7 @@ class MonitorIntegrationTests(unittest.TestCase):
             monitor = Monitor(config, Path(temp) / "monitor.json", sender=send,
                               fetcher=lambda *a: [dict(item)], classifier_type=NoAI)
             monitor.analytics = Mock()
-            def capture(*args):
+            def capture(*args, **kwargs):
                 events.append("capture")
                 raise OSError("locked")
             monitor.analytics.capture.side_effect = capture

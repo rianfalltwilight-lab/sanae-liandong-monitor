@@ -101,8 +101,17 @@ class AnalyticsStore:
                     shop_id TEXT NOT NULL, item_id TEXT NOT NULL, edition TEXT NOT NULL,
                     snapshot TEXT NOT NULL, recorded_at REAL NOT NULL,
                     PRIMARY KEY (shop_id, item_id));
+                CREATE TABLE IF NOT EXISTS service_ticks (
+                    at REAL NOT NULL, service TEXT NOT NULL, ok INTEGER NOT NULL,
+                    healthy INTEGER NOT NULL DEFAULT 0, indicator TEXT NOT NULL,
+                    description TEXT NOT NULL, error TEXT,
+                    PRIMARY KEY (at, service));
+                CREATE INDEX IF NOT EXISTS service_ticks_at ON service_ticks(at);
             """)
             db.execute("INSERT OR IGNORE INTO metadata VALUES ('schema_version', '1')")
+            columns = {row[1] for row in db.execute("PRAGMA table_info(service_ticks)")}
+            if "healthy" not in columns:
+                db.execute("ALTER TABLE service_ticks ADD COLUMN healthy INTEGER NOT NULL DEFAULT 0")
             version = db.execute("SELECT value FROM metadata WHERE key='schema_version'").fetchone()[0]
             if version != "1":
                 raise ValueError("unsupported_analytics_schema")
@@ -124,7 +133,7 @@ class AnalyticsStore:
             VALUES (:at,:shop_id,:shop_name,:item_id,:edition,:title,:url,:price_cents,:stock,:active,:target,:classification_pending)""",
             dict(snapshot, at=at))
 
-    def record_poll(self, items, shops, successful, attempted, health, observed_at):
+    def record_poll(self, items, shops, successful, attempted, health, observed_at, *, service_status=None):
         """Atomically record one completed poll; failed/skipped data never leaks in.
 
         ``health`` is accepted for the monitor integration contract. Error text,
@@ -198,6 +207,15 @@ class AnalyticsStore:
                         self._append(db, current, at)
                         db.execute("INSERT INTO latest_items VALUES (?,?,?,?,?) ON CONFLICT(shop_id,item_id) DO UPDATE SET edition=excluded.edition,snapshot=excluded.snapshot,recorded_at=excluded.recorded_at",
                                    (sid, item_id, current["edition"], payload, at))
+            for service, status in (service_status or {}).items():
+                if service not in {"openai", "claude"} or not isinstance(status, dict):
+                    continue
+                db.execute("""INSERT OR REPLACE INTO service_ticks
+                    (at,service,ok,healthy,indicator,description,error) VALUES (?,?,?,?,?,?,?)""",
+                    (at, service, int(status.get("ok") is True), int(status.get("healthy") is True),
+                     str(status.get("indicator") or "unknown")[:32],
+                     str(status.get("description") or "状态未知")[:160],
+                     str(status.get("error") or "")[:64] or None))
 
     def recorded_dates(self):
         """Return local dates with real attempted shop observations only."""
@@ -230,6 +248,8 @@ class AnalyticsStore:
                 "SELECT * FROM shops WHERE configured=1 OR ? ORDER BY shop_id", (bool(include_removed),))}
             started = db.execute(
                 f"SELECT MIN(at) FROM shop_ticks WHERE shop_id IN ({scope})", (bool(include_removed),)).fetchone()[0]
+            service_rows = [dict(row) for row in db.execute(
+                "SELECT * FROM service_ticks WHERE at>=? AND at<? ORDER BY at,service", (start, end))]
         by_shop = defaultdict(list)
         for row in ticks:
             by_shop[row["shop_id"]].append(row)
@@ -280,6 +300,16 @@ class AnalyticsStore:
         if incomplete:
             notes.append("以下店铺无成功采样或存在超过 10 分钟的覆盖缺口：" + "、".join(incomplete) + "。")
         analysis = self._analysis(shops, products)
+        service_status = {}
+        for service in sorted({row["service"] for row in service_rows}):
+            rows = [row for row in service_rows if row["service"] == service]
+            latest = rows[-1]
+            service_status[service] = {
+                "ok": bool(latest["ok"]), "healthy": bool(latest["healthy"]), "indicator": latest["indicator"],
+                "description": latest["description"], "error": latest["error"],
+                "samples": len(rows), "successes": sum(bool(row["ok"]) for row in rows),
+                "latest_at": _iso(latest["at"]),
+            }
         return dict(date=date, timezone="Asia/Shanghai", generated_at=_iso(generated),
             first_observed=_iso(ticks[0]["at"]) if ticks else None, last_observed=_iso(ticks[-1]["at"]) if ticks else None,
             recording_started_at=_iso(started), coverage_gap_seconds=COVERAGE_GAP_SECONDS, partial=partial,
@@ -291,7 +321,7 @@ class AnalyticsStore:
                 item_id=row["item_id"], edition=row["edition"], title=row["title"], url=row["url"],
                 price=_yuan(row["price_cents"]), stock=row["stock"], active=bool(row["active"]),
                 target=bool(row["target"]), classification_pending=bool(row["classification_pending"])) for row in observations],
-            notes=notes, analysis=analysis)
+            notes=notes, analysis=analysis, service_status=service_status)
 
     @staticmethod
     def _analysis(shops, products):

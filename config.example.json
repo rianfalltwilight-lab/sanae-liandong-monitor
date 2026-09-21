@@ -45,6 +45,14 @@
     }
   ],
   "private_forward_qq": "2731538103",
+  "service_status": {
+    "enabled": true,
+    "poll_seconds": 60,
+    "request_timeout": 10,
+    "openai_url": "https://status.openai.com/api/v2/summary.json",
+    "include_claude": false,
+    "claude_url": "https://status.claude.com/api/v2/summary.json"
+  },
   "analytics": {
     "enabled": true,
     "send_daily": false,

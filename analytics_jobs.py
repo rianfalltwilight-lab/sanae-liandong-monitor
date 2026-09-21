@@ -70,8 +70,9 @@ class AnalyticsJobs:
         self.running_date = None
         self.bad_receipts = set()
 
-    def capture(self, items, shops, successful, attempted, health, observed_at):
-        self.store.record_poll(items, shops, successful, attempted, health, observed_at)
+    def capture(self, items, shops, successful, attempted, health, observed_at, *, service_status=None):
+        self.store.record_poll(items, shops, successful, attempted, health, observed_at,
+                              service_status=service_status)
         try:
             self.tick(time.time())
         except Exception as exc:
@@ -144,6 +145,15 @@ def onebot(config, action, payload, *, opener=None):
 def summary_text(report):
     lines = ["【链动小铺·每日数据报告】", report["date"] + " · 速刷 team5x",
              "统计时区：北京时间" + ("｜当日采样不完整" if report.get("partial") else "")]
+    status = report.get("service_status", {}).get("openai")
+    if status:
+        if status.get("ok") is True:
+            if status.get("healthy") is False:
+                lines.append("🟠 OpenAI 状态已采集但有异常提示｜本时段可以考虑买")
+            else:
+                lines.append("🟢 OpenAI 状态正常｜本时段可以考虑买")
+        else:
+            lines.append("⚪ OpenAI 状态采集失败或异常｜本时段不推荐买")
     for shop in report.get("shops", []):
         low, last = shop.get("min_price"), shop.get("last_price")
         if low is None:

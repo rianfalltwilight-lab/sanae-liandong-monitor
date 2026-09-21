@@ -19,6 +19,7 @@ from deepseek_classifier import Classifier
 from shop_source import fetch_shop as fetch_catalog_shop
 from mdkj_source import fetch_shop as fetch_mdkj_shop
 from priority_alert import qualifies, render_priority
+from service_status import StatusClient, recommendation_line
 
 LOG = logging.getLogger("liandong")
 CST = timezone(timedelta(hours=8))
@@ -130,6 +131,8 @@ class Monitor:
         self.private_sender = send_private_onebot
         self.dry_run = dry_run
         self.classifier = classifier_type(config, self.state["classifier_cache"])
+        self.status_client = StatusClient(config)
+        self.openai_status = self.state.get("service_status", {})
         self.analytics = None
         self.analytics_config_path = config_path
         self.analytics_retry_after = 0
@@ -186,6 +189,7 @@ class Monitor:
             stamp = datetime.fromtimestamp(now, CST).strftime("%m-%d %H:%M:%S")
             messages = render_priority(events, stamp) if priority else render_messages(events, fresh, stamp)
             for text in messages:
+                text = text.rstrip() + "\n" + recommendation_line(self.openai_status)
                 if recovery:
                     text = text.replace("— 新上架", "— 新上架·延迟送达")
                 self.state["pending"].append({"text": text, "created": now,
@@ -345,6 +349,7 @@ class Monitor:
                                    "next_attempt": now + wait, "last_failure": now})
                     LOG.warning("shop_failed shop=%s type=%s retry=%ss", sid, type(exc).__name__, wait)
         self.state["last_poll"] = now
+        self.refresh_service_status(now)
         count = self.queue_events(previous, now)
         self.state["initialized_shops"] = sorted(set(self.state["initialized_shops"]) | set(successful))
         self.save()
@@ -366,7 +371,8 @@ class Monitor:
                     from analytics_jobs import AnalyticsJobs
                     self.analytics = AnalyticsJobs(self.config, self.state_path.parent, self.analytics_config_path)
                 self.analytics.capture(self.state["items"], self.config["shops"], successful,
-                    [shop["id"] for shop in due], self.state["shop_health"], now)
+                    [shop["id"] for shop in due], self.state["shop_health"], now,
+                    service_status=self.openai_status)
                 self.state.pop("analytics_error", None)
             except Exception as exc:
                 self.state["analytics_error"] = type(exc).__name__
@@ -379,6 +385,23 @@ class Monitor:
                  count, len(self.state["pending"]))
         return {"shops_ok": len(successful), "shops_due": len(due), "events": count,
                 "pending": len(self.state["pending"]), "dry_run": self.dry_run}
+
+    def refresh_service_status(self, now):
+        if not self.config.get("service_status", {}).get("enabled", False):
+            return
+        try:
+            self.openai_status = self.status_client.poll(now)
+            self.state["service_status"] = self.openai_status
+            self.save()
+        except Exception as exc:
+            # Status is a conservative purchase hint, never a reason to drop
+            # a shop event. The client itself normally converts failures into
+            # an explicit unknown/failed result.
+            LOG.warning("service_status_failed type=%s", type(exc).__name__)
+            self.openai_status = {"openai": {"ok": False, "error": type(exc).__name__,
+                                              "description": "状态采集失败", "indicator": "unknown"}}
+            self.state["service_status"] = self.openai_status
+            self.save()
 
 
 def instance_lock(path):
