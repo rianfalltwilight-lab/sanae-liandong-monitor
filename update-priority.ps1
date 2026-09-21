@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('priority','quiet','shops')][string]$UpdateName = 'priority',
+    [ValidateSet('priority','quiet','shops','analytics')][string]$UpdateName = 'priority',
     [string[]]$Changes = @('shop_monitor.py','priority_alert.py','README.md','stop-monitor.ps1')
 )
 $ErrorActionPreference = 'Stop'

@@ -49,5 +49,17 @@
       "token_file": "E:\\Minecarft\\.E3_LLBot_Sanae\\secrets\\mdkj-customer-token.txt"
     }
   ],
-  "private_forward_qq": "2731538103"
+  "private_forward_qq": "2731538103",
+  "analytics": {
+    "enabled": true,
+    "send_daily": false,
+    "report_hour": 0,
+    "report_minute": 5,
+    "max_catchup_days": 3,
+    "current_report_seconds": 3600,
+    "xlsx": {
+      "node_executable": "",
+      "artifact_tool_module": ""
+    }
+  }
 }

@@ -112,7 +112,7 @@ def send_private_onebot(config, text, opener=None):
 
 class Monitor:
     def __init__(self, config, state_path, *, sender=send_onebot, fetcher=fetch_shop,
-                 classifier_type=Classifier, dry_run=False):
+                 classifier_type=Classifier, dry_run=False, config_path=None):
         self.config = config
         self.state_path = Path(state_path)
         self.state = load_state(state_path)
@@ -130,6 +130,9 @@ class Monitor:
         self.private_sender = send_private_onebot
         self.dry_run = dry_run
         self.classifier = classifier_type(config, self.state["classifier_cache"])
+        self.analytics = None
+        self.analytics_config_path = config_path
+        self.analytics_retry_after = 0
 
     def save(self):
         atomic_json(self.state_path, self.state)
@@ -316,6 +319,18 @@ class Monitor:
                     self.state["items"][key]["classification_pending"] = False
             count += self.queue_events(before_ai, time.time())
             self.deliver(time.time())
+        if self.config.get("analytics", {}).get("enabled") and not self.dry_run and time.time() >= self.analytics_retry_after:
+            try:
+                if self.analytics is None:
+                    from analytics_jobs import AnalyticsJobs
+                    self.analytics = AnalyticsJobs(self.config, self.state_path.parent, self.analytics_config_path)
+                self.analytics.capture(self.state["items"], self.config["shops"], successful,
+                    [shop["id"] for shop in due], self.state["shop_health"], now)
+                self.state.pop("analytics_error", None)
+            except Exception as exc:
+                self.state["analytics_error"] = type(exc).__name__
+                self.analytics_retry_after = time.time() + 60
+                LOG.warning("analytics_failed type=%s", type(exc).__name__)
         self.state["last_complete"] = time.time()
         self.save()
         LOG.info("poll shops=%d/%d targets=%d events=%d pending=%d", len(successful), len(due),
@@ -368,7 +383,7 @@ def main():
         print("monitor already running", flush=True)
         return
     with lock:
-        monitor = Monitor(config, state_path, dry_run=args.dry_run)
+        monitor = Monitor(config, state_path, dry_run=args.dry_run, config_path=Path(args.config).resolve())
         atomic_json(state_path.parent / "process.json", {"pid": os.getpid(), "start": time.time(), "source": str(root)})
         while True:
             started = time.monotonic()
