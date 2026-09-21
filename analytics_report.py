@@ -368,6 +368,14 @@ def export_day(report: dict, output_root: str | Path) -> Path:
     date.fromisoformat(day)
     target = Path(output_root).resolve() / day
     target.mkdir(parents=True, exist_ok=True)
+    charts_dir = target / 'charts'
+    charts_dir.mkdir(parents=True, exist_ok=True)
+    # Remove only renderer-owned files so a refreshed report cannot retain
+    # orphaned charts for a shop removed from the active roster.
+    for old in charts_dir.iterdir():
+        if old.is_file() and (old.name == 'comparison.svg' or
+                              old.name.startswith('shop-') or old.name.startswith('product-')):
+            old.unlink()
     lines = _shop_lines(report)
     comparison = _svg_chart("店铺最低报价对比", day, lines)
     _atomic_write(target / 'charts' / 'comparison.svg', comparison)

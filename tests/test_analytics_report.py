@@ -82,6 +82,18 @@ class AnalyticsReportTests(unittest.TestCase):
         self.assertNotIn("¥0.00", page)
         self.assertEqual(elements(root / "charts/comparison.svg", "circle"), [])
 
+    def test_refresh_removes_orphaned_renderer_charts(self):
+        report = sample_report()
+        root = self.export(report)
+        chart_dir = root / "charts"
+        old = next(chart_dir.glob("product-*.svg"))
+        old_name = old.name
+        refreshed = copy.deepcopy(report)
+        refreshed["products"] = []
+        refreshed["observations"] = []
+        export_day(refreshed, root.parent)
+        self.assertFalse((chart_dir / old_name).exists())
+
     def test_chart_breaks_failed_null_and_over_sixty_second_gaps(self):
         report = sample_report()
         rows = [
