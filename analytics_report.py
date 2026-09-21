@@ -74,6 +74,17 @@ def _money(value: object, symbol: bool = True) -> str:
     return ("¥" if symbol else "") + f"{number:.2f}" if number is not None else "—"
 
 
+def _openai_status_line(report: dict) -> str:
+    status = (report.get("service_status") or {}).get("openai")
+    if not status:
+        return "⚪ OpenAI 状态未采集｜本时段不推荐买"
+    if status.get("ok") is True:
+        if status.get("healthy") is False:
+            return "🟠 OpenAI 状态已采集但有异常提示｜本时段可以考虑买"
+        return "🟢 OpenAI 状态正常｜本时段可以考虑买"
+    return "⚪ OpenAI 状态采集失败或异常｜本时段不推荐买"
+
+
 def _timestamp(value: object) -> datetime | None:
     if not value:
         return None
@@ -287,7 +298,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th{text-align:left;back
 .table-wrap{overflow-x:auto}.shop-name{font-weight:600;min-width:115px}.product-title{min-width:260px;max-width:420px;overflow-wrap:anywhere}a{color:#1d4ed8;text-decoration:none}a:hover{text-decoration:underline}
 svg{display:block;width:100%;height:auto;min-width:580px}.chart{overflow-x:auto}.shop-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}.shop-grid .card{margin:0;padding:18px}.shop-grid svg{min-width:500px}
 details{border-top:1px solid var(--line);padding:14px 0}summary{cursor:pointer;font-weight:600;overflow-wrap:anywhere}details .muted{margin:8px 0}.analysis li,.method li{margin-bottom:8px}.downloads{display:flex;flex-wrap:wrap;gap:10px}.downloads a{padding:7px 12px;background:#eff6ff;border-radius:8px;font-size:13px}
-.coverage{margin-bottom:16px}.empty{padding:35px 12px;color:var(--muted);text-align:center}footer{text-align:center;color:var(--muted);font-size:12px;padding:12px 24px 28px}
+.coverage{margin-bottom:10px}.status-note{display:inline-block;background:#eff6ff;border-left:4px solid #2563eb;padding:8px 12px;border-radius:6px;margin-bottom:16px;font-size:14px}.empty{padding:35px 12px;color:var(--muted);text-align:center}footer{text-align:center;color:var(--muted);font-size:12px;padding:12px 24px 28px}
 @media(max-width:900px){.shop-grid{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}main{padding:16px}.card{padding:18px}h1{font-size:25px}}
 @media print{body{background:white}header{padding:20px;color:#14213b;background:white}header p{color:#475569}main{padding:0}.downloads{display:none}.card{break-inside:avoid}.shop-grid{display:block}.shop-grid .card{margin-bottom:16px}svg{min-width:0!important}.table-wrap{overflow:visible}details{break-inside:avoid}}
 """
@@ -313,6 +324,7 @@ def _html_report(report: dict, comparison: str, shop_svgs: list[str], product_sv
         f'<div class="metric"><span class="label">已记录商品版本</span><strong>{len(products)}</strong></div></div>',
         '<section class="card"><h2>今日观察</h2>',
         f'<div class="muted coverage">采集覆盖：{_escape(_time(report.get("first_observed"), True))} → {_escape(_time(report.get("last_observed"), True))}；生成于 {_escape(_time(report.get("generated_at"), True))}</div>',
+        f'<div class="status-note">{_escape(_openai_status_line(report))}</div>',
         '<ul class="analysis">' + ''.join(f'<li>{_escape(line)}</li>' for line in analysis) + '</ul>',
     ]
     if partial:

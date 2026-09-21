@@ -47,6 +47,14 @@ class RuntimeTests(unittest.TestCase):
         self.poll()
         self.assertEqual(len(self.messages), 1)
 
+    def test_service_status_is_appended_to_purchase_event(self):
+        self.monitor.config["service_status"] = {"enabled": True}
+        self.monitor.status_client.poll = lambda now: {"openai": {"ok": True, "healthy": True,
+            "description": "All Systems Operational", "indicator": "none", "fetched_at": now, "error": None}}
+        self.poll()
+        self.assertIn("OpenAI 状态正常", self.messages[0])
+        self.assertIn("本时段可以考虑买", self.messages[0])
+
     def test_removed_shop_is_excluded_from_fresh_items_and_pending_rebuilt(self):
         self.poll()
         self.assertEqual(len(self.messages), 1)

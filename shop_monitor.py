@@ -189,7 +189,8 @@ class Monitor:
             stamp = datetime.fromtimestamp(now, CST).strftime("%m-%d %H:%M:%S")
             messages = render_priority(events, stamp) if priority else render_messages(events, fresh, stamp)
             for text in messages:
-                text = text.rstrip() + "\n" + recommendation_line(self.openai_status)
+                if self.config.get("service_status", {}).get("enabled", False):
+                    text = text.rstrip() + "\n" + recommendation_line(self.openai_status)
                 if recovery:
                     text = text.replace("— 新上架", "— 新上架·延迟送达")
                 self.state["pending"].append({"text": text, "created": now,

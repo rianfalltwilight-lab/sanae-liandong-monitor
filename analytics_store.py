@@ -310,6 +310,12 @@ class AnalyticsStore:
                 "samples": len(rows), "successes": sum(bool(row["ok"]) for row in rows),
                 "latest_at": _iso(latest["at"]),
             }
+        openai = service_status.get("openai")
+        if openai:
+            if openai.get("ok"):
+                notes.append("OpenAI 状态页最后一次采集成功；本时段可以考虑买。状态页指标：" + str(openai.get("description") or "未知") + "。")
+            else:
+                notes.append("OpenAI 状态页最后一次采集失败或异常；本时段不推荐买。")
         return dict(date=date, timezone="Asia/Shanghai", generated_at=_iso(generated),
             first_observed=_iso(ticks[0]["at"]) if ticks else None, last_observed=_iso(ticks[-1]["at"]) if ticks else None,
             recording_started_at=_iso(started), coverage_gap_seconds=COVERAGE_GAP_SECONDS, partial=partial,
