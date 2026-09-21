@@ -204,7 +204,12 @@ class AnalyticsStore:
         with self._db() as db:
             return [row[0] for row in db.execute("SELECT DISTINCT date(at,'unixepoch','+8 hours') AS day FROM shop_ticks ORDER BY day")]
 
-    def build_day(self, date):
+    def build_day(self, date, *, include_removed=False):
+        """Build the current monitor roster's report without deleting history.
+
+        Removed shops are excluded from all report inputs by default, including
+        older days. Explicit archival exports may opt into their retained data.
+        """
         day = Date.fromisoformat(date)
         if day.isoformat() != date:
             raise ValueError("date_must_be_yyyy_mm_dd")
@@ -214,16 +219,20 @@ class AnalyticsStore:
         with self._db() as db:
             # A read transaction gives all parts of a report the same snapshot.
             db.execute("BEGIN")
-            ticks = [dict(row) for row in db.execute("SELECT * FROM shop_ticks WHERE at>=? AND at<? ORDER BY at,shop_id", (start, end))]
-            observations = [dict(row) for row in db.execute("SELECT * FROM observations WHERE at>=? AND at<? ORDER BY at,shop_id,item_id,edition", (start, end))]
-            roster = {row["shop_id"]: row["shop_name"] for row in db.execute("SELECT * FROM shops WHERE configured=1 ORDER BY shop_id")}
-            metadata = {row["key"]: row["value"] for row in db.execute("SELECT * FROM metadata")}
-        for row in ticks:
-            roster.setdefault(row["shop_id"], row["shop_name"])
+            scope = "SELECT shop_id FROM shops WHERE configured=1 OR ?"
+            ticks = [dict(row) for row in db.execute(
+                f"SELECT * FROM shop_ticks WHERE at>=? AND at<? AND shop_id IN ({scope}) ORDER BY at,shop_id",
+                (start, end, bool(include_removed)))]
+            observations = [dict(row) for row in db.execute(
+                f"SELECT * FROM observations WHERE at>=? AND at<? AND shop_id IN ({scope}) ORDER BY at,shop_id,item_id,edition",
+                (start, end, bool(include_removed)))]
+            roster = {row["shop_id"]: row["shop_name"] for row in db.execute(
+                "SELECT * FROM shops WHERE configured=1 OR ? ORDER BY shop_id", (bool(include_removed),))}
+            started = db.execute(
+                f"SELECT MIN(at) FROM shop_ticks WHERE shop_id IN ({scope})", (bool(include_removed),)).fetchone()[0]
         by_shop = defaultdict(list)
         for row in ticks:
             by_shop[row["shop_id"]].append(row)
-        started = float(metadata["recording_started_at"]) if "recording_started_at" in metadata else None
         partial = generated < end or started is None or started > start or not roster
         shops = []
         incomplete = []
@@ -260,6 +269,8 @@ class AnalyticsStore:
                  "商品明细按商品 ID 与标题/描述指纹区分版本；描述只参与指纹，不保存原文。",
                  "商品观测按变化与每 5 分钟心跳记录；采样间的变化无法还原，缺失或失败不按 0 元或售罄处理。",
                  "库存变化不能推断销量；不比较每小时价格，也不假定使用时长、售后或商品质量相同。"]
+        notes.append("本表包含已移除店铺的保留历史，供归档查询。" if include_removed else
+                     "本表仅统计当前监控名单中的店铺；已移除店铺的历史记录保留，但不参与本表统计。")
         if partial:
             notes.append("本表为部分覆盖：当天尚未结束、监控启用较晚或存在采样缺口，不能当作完整全天行情。")
         if started is not None:

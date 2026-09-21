@@ -133,13 +133,52 @@ class Monitor:
         self.analytics = None
         self.analytics_config_path = config_path
         self.analytics_retry_after = 0
+        self.reconcile_shop_roster(time.time())
 
     def save(self):
         atomic_json(self.state_path, self.state)
 
+    def configured_shop_ids(self):
+        return {shop["id"] for shop in self.config["shops"]}
+
+    def reconcile_shop_roster(self, now):
+        configured = self.configured_shop_ids()
+        previous = set(self.state.get("notification_shop_ids", self.state["initialized_shops"]))
+        if "notification_shop_ids" not in self.state:
+            previous.update(item["shop_id"] for item in self.state["items"].values())
+        removed = previous - configured
+        if removed:
+            pending, self.state["pending"] = self.state["pending"], []
+            fresh = self.fresh_items(now)
+            # Rebuild even entries whose events belong to retained shops: their
+            # already-rendered minimum-price header may mention a removed shop.
+            # Keep per-recipient receipts and original expiry when splitting.
+            for old in pending:
+                events = []
+                for event in old.get("events", []):
+                    item = self.state["items"].get(event["item_id"])
+                    if item and item["shop_id"] in configured and event["kind"] in ("new", "low_stock"):
+                        events.append({"kind": event["kind"], "item": item, "old": event.get("old")})
+                urgent = [event for event in events if qualifies(event["item"])]
+                urgent_ids = {event["item"]["id"] for event in urgent}
+                start = len(self.state["pending"])
+                self.enqueue(urgent, fresh, now, priority=True)
+                self.enqueue([event for event in events if event["item"]["id"] not in urgent_ids], fresh, now)
+                for entry in self.state["pending"][start:]:
+                    for field in ("created", "group_sent", "private_sent", "attempts"):
+                        if field in old:
+                            entry[field] = old[field]
+                    # Let deliver's normal refresh validate a changed catalog.
+                    entry["refs"] = {key: old.get("refs", {}).get(key, signature)
+                                     for key, signature in entry["refs"].items()}
+            LOG.info("removed_shops=%s pending_rebuilt=%d", sorted(removed), len(self.state["pending"]))
+        self.state["notification_shop_ids"] = sorted(configured)
+
     def fresh_items(self, now):
+        configured = self.configured_shop_ids()
         return {key: item for key, item in self.state["items"].items()
-                if not self.state["shop_health"].get(item["shop_id"], {}).get("error")
+                if item["shop_id"] in configured
+                and not self.state["shop_health"].get(item["shop_id"], {}).get("error")
                 and now - item.get("observed_epoch", 0) <= max(60, self.config["poll_seconds"] * 3)}
 
     def enqueue(self, events, fresh, now, *, priority=False, recovery=False):
@@ -159,7 +198,9 @@ class Monitor:
 
     def queue_events(self, previous, now):
         fresh = self.fresh_items(now)
-        allowed = make_events(previous, self.state["items"], set(self.state["initialized_shops"]))
+        configured = self.configured_shop_ids()
+        allowed = [event for event in make_events(previous, self.state["items"], set(self.state["initialized_shops"]))
+                   if event["item"]["shop_id"] in configured]
         priority = [e for e in allowed if e["item"]["id"] in fresh and qualifies(e["item"])]
         priority_ids = {e["item"]["id"] for e in priority}
         events = [e for e in allowed if e["item"]["id"] not in priority_ids]

@@ -46,6 +46,21 @@ class RuntimeTests(unittest.TestCase):
     def test_initial_then_unchanged_restart_no_duplicate(self):
         self.poll()
         self.assertEqual(len(self.messages), 1)
+
+    def test_removed_shop_is_excluded_from_fresh_items_and_pending_rebuilt(self):
+        self.poll()
+        self.assertEqual(len(self.messages), 1)
+        self.monitor.state["pending"] = [{
+            "text": "removed shop stale minimum", "created": time.time(), "attempts": 0,
+            "group_sent": False, "private_sent": False, "events": [{"kind": "new", "item_id": "ctxy7n"}],
+            "refs": {"ctxy7n": ["50", 4, True, True, "team5x 3h速刷", None]},
+        }]
+        self.monitor.config["shops"] = []
+        restarted = Monitor(self.monitor.config, self.path, sender=self.send,
+                            fetcher=self.monitor.fetcher, classifier_type=NoAI)
+        self.assertEqual(restarted.fresh_items(time.time()), {})
+        self.assertEqual(restarted.state["pending"], [])
+        self.assertEqual(restarted.state["notification_shop_ids"], [])
         self.monitor = Monitor(self.config, self.path, sender=self.send,
             fetcher=lambda s, c: [dict(i) for i in self.catalog], classifier_type=NoAI)
         self.poll()

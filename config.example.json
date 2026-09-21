@@ -11,11 +11,6 @@
   "deepseek_timeout": 12,
   "shops": [
     {
-      "id": "K4AWDKG6",
-      "token": "K4AWDKG6",
-      "name": "商家6635"
-    },
-    {
       "id": "13QL6FLR",
       "token": "13QL6FLR",
       "name": "RenWin"

@@ -172,6 +172,56 @@ class AnalyticsStoreTests(unittest.TestCase):
         self.assertEqual(report["products"][0]["price_changes"], 1)
         self.assertEqual(report["recording_started_at"], "2025-04-06T10:00:00+08:00")
 
+    def test_removed_shop_is_excluded_from_every_report_input_but_history_is_retained(self):
+        self.shops = [dict(id="removed", name="商家6635")] + [
+            dict(id=f"keep-{index}", name=f"保留店 {index}") for index in range(6)]
+        self.record(product(shop_id="removed", title="移除商品", price="1"),
+                    attempted=("removed",), successful=("removed",))
+        items = {f"item-{index}": product(id=f"item-{index}", shop_id=f"keep-{index}", price=str(40 + index))
+                 for index in range(6)}
+        kept = tuple(f"keep-{index}" for index in range(6))
+        self.record(items=items, offset=20, attempted=kept, successful=kept)
+        self.record(product(shop_id="removed", title="移除商品", price="2"), offset=40,
+                    attempted=("removed",), successful=("removed",))
+        self.record(items={}, offset=60, attempted=("removed",), successful=())
+        self.shops = self.shops[1:]
+        self.record(items={}, offset=80, attempted=(), successful=())
+
+        report = self.day()
+        self.assertEqual(len(report["shops"]), 6)
+        for field in ("shops", "products", "series", "observations"):
+            self.assertEqual({row["shop_id"] for row in report[field]}, set(kept))
+        self.assertEqual(min(row["min_price"] for row in report["shops"]), 40)
+        self.assertEqual(report["first_observed"], "2025-04-06T10:00:20+08:00")
+        self.assertEqual(report["last_observed"], report["first_observed"])
+        self.assertEqual(report["recording_started_at"], report["first_observed"])
+        encoded = json.dumps(report, ensure_ascii=False)
+        self.assertNotIn("商家6635", encoded)
+        self.assertNotIn("移除商品", encoded)
+        self.assertFalse(any("采集失败" in line for line in report["analysis"]))
+        self.assertTrue(any("¥40.00" in line for line in report["analysis"]))
+
+        archived = self.store.build_day("2025-04-06", include_removed=True)
+        self.assertEqual(len(archived["shops"]), 7)
+        self.assertTrue(any("商家6635" in line for line in archived["analysis"]))
+        self.assertEqual(min(row["min_price"] for row in archived["shops"]), 1)
+        with closing(sqlite3.connect(self.path)) as db:
+            self.assertEqual(db.execute("SELECT COUNT(*) FROM shop_ticks WHERE shop_id='removed'").fetchone()[0], 3)
+            self.assertEqual(db.execute("SELECT COUNT(*) FROM observations WHERE shop_id='removed'").fetchone()[0], 2)
+
+    def test_removing_last_shop_leaves_empty_report_and_preserves_archive(self):
+        self.shops = self.shops[:1]
+        self.record()
+        self.shops = []
+        self.record(items={}, offset=20, attempted=(), successful=())
+        report = self.day()
+        for field in ("shops", "products", "series", "observations"):
+            self.assertEqual(report[field], [])
+        for field in ("first_observed", "last_observed", "recording_started_at"):
+            self.assertIsNone(report[field])
+        self.assertTrue(report["partial"])
+        self.assertEqual(len(self.store.build_day("2025-04-06", include_removed=True)["products"]), 1)
+
     def test_failed_transaction_does_not_leave_partial_tick_or_metadata(self):
         with patch.object(self.store, "_append", side_effect=RuntimeError("injected_write_failure")):
             with self.assertRaisesRegex(RuntimeError, "injected_write_failure"):
