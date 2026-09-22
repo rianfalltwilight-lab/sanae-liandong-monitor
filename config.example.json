@@ -3,6 +3,7 @@
   "sanae_root": "E:\\Minecarft\\.E3_LLBot_Sanae",
   "group_id": 1092470719,
   "group_priority_only": true,
+  "all_alert_group_id": 837056300,
   "onebot_url": "http://127.0.0.1:3002",
   "poll_seconds": 20,
   "request_timeout": 10,

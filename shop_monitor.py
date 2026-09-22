@@ -25,6 +25,8 @@ LOG = logging.getLogger("liandong")
 CST = timezone(timedelta(hours=8))
 PRIORITY_MENTIONS = ("3294692833", "1920924896")
 PRIVATE_FORWARD_QQ = "2731538103"
+PRIORITY_GROUP_ID = 1092470719
+ALL_ALERT_GROUP_ID = 837056300
 NOTIFICATION_POLICY = "listed-or-last-five-v1"
 
 
@@ -59,19 +61,27 @@ def load_state(path):
     return value
 
 
-def send_onebot(config, text, opener=None, *, mentions=()):
+def _send_group_onebot(config, group_id, text, opener=None, *, mentions=()):
     # Text segments prevent any shop title from injecting CQ actions/mentions.
-    if int(config["group_id"]) != 1092470719:
+    if group_id == PRIORITY_GROUP_ID:
+        if int(config["group_id"]) != PRIORITY_GROUP_ID:
+            raise ValueError("unauthorized_group")
+        if tuple(mentions) not in ((), PRIORITY_MENTIONS):
+            raise ValueError("unauthorized_mentions")
+    elif group_id == ALL_ALERT_GROUP_ID:
+        if int(config.get("all_alert_group_id", 0)) != ALL_ALERT_GROUP_ID:
+            raise ValueError("unauthorized_all_alert_group")
+        if mentions:
+            raise ValueError("mentions_not_allowed_in_all_alert_group")
+    else:
         raise ValueError("unauthorized_group")
     if config["onebot_url"] != "http://127.0.0.1:3002":
         raise ValueError("unexpected_onebot_endpoint")
-    if tuple(mentions) not in ((), PRIORITY_MENTIONS):
-        raise ValueError("unauthorized_mentions")
     segments = []
     for qq in mentions:
         segments.extend([{"type": "at", "data": {"qq": qq}}, {"type": "text", "data": {"text": " "}}])
     segments.append({"type": "text", "data": {"text": ("\n" if mentions else "") + text}})
-    payload = {"group_id": 1092470719,
+    payload = {"group_id": group_id,
                "message": segments, "auto_escape": True}
     request = urllib.request.Request(config["onebot_url"] + "/send_group_msg",
         data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
@@ -85,6 +95,16 @@ def send_onebot(config, text, opener=None, *, mentions=()):
     if message_id is None:
         raise RuntimeError("onebot_missing_receipt")
     return message_id
+
+
+def send_onebot(config, text, opener=None, *, mentions=()):
+    """Send the priority-only alert stream to its fixed group."""
+    return _send_group_onebot(config, PRIORITY_GROUP_ID, text, opener, mentions=mentions)
+
+
+def send_all_group_onebot(config, text, opener=None):
+    """Send every real-time listing/last-five alert without mentions."""
+    return _send_group_onebot(config, ALL_ALERT_GROUP_ID, text, opener)
 
 
 def send_private_onebot(config, text, opener=None):
@@ -113,7 +133,8 @@ def send_private_onebot(config, text, opener=None):
 
 class Monitor:
     def __init__(self, config, state_path, *, sender=send_onebot, fetcher=fetch_shop,
-                 classifier_type=Classifier, dry_run=False, config_path=None):
+                 classifier_type=Classifier, dry_run=False, config_path=None,
+                 all_group_sender=send_all_group_onebot):
         self.config = config
         self.state_path = Path(state_path)
         self.state = load_state(state_path)
@@ -127,7 +148,15 @@ class Monitor:
             for entry in self.state["pending"]:
                 entry.setdefault("group_sent", False)
                 entry.setdefault("private_sent", True)
+        # Pending entries created before the all-alert group was configured must
+        # not be replayed into the newly added group. New entries explicitly set
+        # this receipt to False in enqueue().
+        for entry in self.state["pending"]:
+            if "all_group_sent" not in entry:
+                entry["all_group_sent"] = True
+                entry["all_group_migration_suppressed"] = True
         self.sender, self.fetcher = sender, fetcher
+        self.all_group_sender = all_group_sender
         self.private_sender = send_private_onebot
         self.dry_run = dry_run
         self.classifier = classifier_type(config, self.state["classifier_cache"])
@@ -168,7 +197,8 @@ class Monitor:
                 self.enqueue(urgent, fresh, now, priority=True)
                 self.enqueue([event for event in events if event["item"]["id"] not in urgent_ids], fresh, now)
                 for entry in self.state["pending"][start:]:
-                    for field in ("created", "group_sent", "private_sent", "attempts"):
+                    for field in ("created", "group_sent", "all_group_sent", "private_sent", "attempts",
+                                  "attempts_by_recipient", "delivery_errors"):
                         if field in old:
                             entry[field] = old[field]
                     # Let deliver's normal refresh validate a changed catalog.
@@ -196,7 +226,9 @@ class Monitor:
                 self.state["pending"].append({"text": text, "created": now,
                     "id": hashlib.sha256((str(now) + text).encode()).hexdigest()[:20], "attempts": 0,
                     "mentions": list(PRIORITY_MENTIONS) if priority else [],
-                    "group_sent": False, "private_sent": False,
+                    "group_sent": False,
+                    "all_group_sent": int(self.config.get("all_alert_group_id", 0)) != ALL_ALERT_GROUP_ID,
+                    "private_sent": False,
                     "events": [{"kind": e["kind"], "item_id": e["item"]["id"], "old": e.get("old")} for e in events],
                     "refs": {e["item"]["id"]: item_signature(e["item"]) for e in events}})
             LOG.info("events=%d messages=%d priority=%s", len(events), len(messages), priority)
@@ -249,71 +281,107 @@ class Monitor:
                 matches = [old for old in old_pending if set(entry.get("refs", {})) & set(old.get("refs", {}))]
                 if matches:
                     entry["group_sent"] = all(old.get("group_sent", False) for old in matches)
+                    entry["all_group_sent"] = all(old.get("all_group_sent", True) for old in matches)
                     entry["private_sent"] = all(old.get("private_sent", False) for old in matches)
             self.save()
         private_enabled = self.config.get("private_forward_qq") == PRIVATE_FORWARD_QQ
+        all_group_enabled = int(self.config.get("all_alert_group_id", 0)) == ALL_ALERT_GROUP_ID
         group_priority_only = bool(self.config.get("group_priority_only", False))
-        while self.state["pending"]:
-            entry = self.state["pending"][0]
+        index = 0
+        while index < len(self.state["pending"]):
+            entry = self.state["pending"][index]
             if now - entry["created"] > self.config.get("pending_ttl_seconds", 120):
                 LOG.warning("expired_notification id=%s", entry["id"])
-                self.state["pending"].pop(0)
+                self.state["pending"].pop(index)
                 self.save()
                 continue
-            try:
-                if self.dry_run:
-                    if not entry.get("group_sent"):
-                        if group_priority_only and not entry.get("mentions"):
-                            entry["group_sent"] = True
-                            entry["group_suppressed"] = True
-                            LOG.info("group_suppressed id=%s reason=priority_only", entry["id"])
-                        else:
-                            print(entry["text"], flush=True)
-                            entry["group_sent"] = True
-                    if private_enabled:
-                        entry["private_sent"] = True
-                else:
-                    if not entry.get("group_sent"):
-                        if group_priority_only and not entry.get("mentions"):
-                            entry["group_sent"] = True
-                            entry["group_suppressed"] = True
-                            LOG.info("group_suppressed id=%s reason=priority_only", entry["id"])
-                            self.save()
-                        elif entry.get("mentions"):
-                            receipt = self.sender(self.config, entry["text"], mentions=tuple(entry["mentions"]))
-                            entry["group_sent"] = True
-                            self.state["deliveries"].append({"id": entry["id"], "recipient": "group",
-                                                              "message_id": receipt, "sent_at": now,
-                                                              "mentions": entry.get("mentions", [])})
-                            self.state["deliveries"] = self.state["deliveries"][-400:]
-                            self.save()
-                        else:
-                            receipt = self.sender(self.config, entry["text"])
-                            entry["group_sent"] = True
-                            self.state["deliveries"].append({"id": entry["id"], "recipient": "group",
-                                                              "message_id": receipt, "sent_at": now,
-                                                              "mentions": entry.get("mentions", [])})
-                            self.state["deliveries"] = self.state["deliveries"][-400:]
-                            self.save()
-                    if private_enabled and not entry.get("private_sent"):
-                        receipt = self.private_sender(self.config, entry["text"])
-                        entry["private_sent"] = True
-                        self.state["deliveries"].append({"id": entry["id"], "recipient": PRIVATE_FORWARD_QQ,
-                                                          "message_id": receipt, "sent_at": now, "mentions": []})
-                        self.state["deliveries"] = self.state["deliveries"][-400:]
+            if self.dry_run:
+                if (not entry.get("group_sent") or
+                        (all_group_enabled and not entry.get("all_group_sent")) or
+                        (private_enabled and not entry.get("private_sent"))):
+                    print(entry["text"], flush=True)
+                if not entry.get("group_sent"):
+                    entry["group_sent"] = True
+                    if group_priority_only and not entry.get("mentions"):
+                        entry["group_suppressed"] = True
+                if all_group_enabled:
+                    entry["all_group_sent"] = True
+                if private_enabled:
+                    entry["private_sent"] = True
+            else:
+                if not entry.get("group_sent"):
+                    if group_priority_only and not entry.get("mentions"):
+                        entry["group_sent"] = True
+                        entry["group_suppressed"] = True
+                        LOG.info("group_suppressed id=%s reason=priority_only", entry["id"])
                         self.save()
-            except Exception as exc:
-                entry["attempts"] = entry.get("attempts", 0) + 1
-                self.state["delivery_error"] = type(exc).__name__
-                LOG.warning("delivery_failed recipient=%s type=%s",
-                            PRIVATE_FORWARD_QQ if entry.get("group_sent") else "group", type(exc).__name__)
+                    else:
+                        try:
+                            if entry.get("mentions"):
+                                receipt = self.sender(self.config, entry["text"],
+                                                      mentions=tuple(entry["mentions"]))
+                            else:
+                                receipt = self.sender(self.config, entry["text"])
+                        except Exception as exc:
+                            self._record_delivery_failure(entry, "group", exc)
+                        else:
+                            entry["group_sent"] = True
+                            self._record_delivery(entry, "group", receipt, now,
+                                                  entry.get("mentions", []))
+                if all_group_enabled and not entry.get("all_group_sent"):
+                    try:
+                        receipt = self.all_group_sender(self.config, entry["text"])
+                    except Exception as exc:
+                        self._record_delivery_failure(entry, str(ALL_ALERT_GROUP_ID), exc)
+                    else:
+                        entry["all_group_sent"] = True
+                        self._record_delivery(entry, str(ALL_ALERT_GROUP_ID), receipt, now, [])
+                if private_enabled and not entry.get("private_sent"):
+                    try:
+                        receipt = self.private_sender(self.config, entry["text"])
+                    except Exception as exc:
+                        self._record_delivery_failure(entry, PRIVATE_FORWARD_QQ, exc)
+                    else:
+                        entry["private_sent"] = True
+                        self._record_delivery(entry, PRIVATE_FORWARD_QQ, receipt, now, [])
+
+            complete = (entry.get("group_sent", False)
+                        and entry.get("all_group_sent", not all_group_enabled)
+                        and (entry.get("private_sent", False) or not private_enabled))
+            if complete:
+                self.state["pending"].pop(index)
+                LOG.info("delivered id=%s group=%s all_group=%s private=%s", entry["id"],
+                         entry.get("group_sent"), entry.get("all_group_sent", not all_group_enabled),
+                         entry.get("private_sent", not private_enabled))
                 self.save()
-                break
+                continue
+            index += 1
+        if not any(entry.get("delivery_errors") for entry in self.state["pending"]):
             self.state.pop("delivery_error", None)
-            self.state["pending"].pop(0)
-            LOG.info("delivered id=%s group=%s private=%s", entry["id"], entry.get("group_sent"),
-                     entry.get("private_sent", not private_enabled))
             self.save()
+
+    def _record_delivery(self, entry, recipient, receipt, now, mentions):
+        errors = entry.get("delivery_errors", {})
+        errors.pop(recipient, None)
+        if errors:
+            entry["delivery_errors"] = errors
+        else:
+            entry.pop("delivery_errors", None)
+        self.state["deliveries"].append({"id": entry["id"], "recipient": recipient,
+                                          "message_id": receipt, "sent_at": now,
+                                          "mentions": list(mentions)})
+        self.state["deliveries"] = self.state["deliveries"][-400:]
+        self.save()
+
+    def _record_delivery_failure(self, entry, recipient, exc):
+        error = type(exc).__name__
+        entry["attempts"] = entry.get("attempts", 0) + 1
+        attempts = entry.setdefault("attempts_by_recipient", {})
+        attempts[recipient] = attempts.get(recipient, 0) + 1
+        entry.setdefault("delivery_errors", {})[recipient] = error
+        self.state["delivery_error"] = error
+        LOG.warning("delivery_failed recipient=%s type=%s", recipient, error)
+        self.save()
 
     def poll(self, *, use_ai=True):
         now = time.time()

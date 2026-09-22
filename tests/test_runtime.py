@@ -5,7 +5,8 @@ import tempfile
 import time
 import unittest
 
-from shop_monitor import Monitor, load_state, send_onebot, send_private_onebot
+from shop_monitor import (Monitor, load_state, send_all_group_onebot, send_onebot,
+                          send_private_onebot)
 
 
 def product(stock=4, price="50", title="team5x 3h速刷", target=True):
@@ -219,6 +220,90 @@ class RuntimeTests(unittest.TestCase):
             send_onebot(self.config, "text", opener)
         with self.assertRaises(ValueError):
             send_onebot(dict(self.config, group_id=1), "text", opener)
+
+    def test_all_alert_group_is_fixed_and_never_accepts_mentions(self):
+        class Opener:
+            def open(inner, request, timeout):
+                inner.body = json.loads(request.data.decode("utf-8"))
+                return io.BytesIO(b'{"status":"ok","retcode":0,"data":{"message_id":124}}')
+        opener = Opener()
+        config = dict(self.config, all_alert_group_id=837056300)
+        self.assertEqual(send_all_group_onebot(config, "普通提醒[CQ:at,qq=all]", opener), 124)
+        self.assertEqual(opener.body["group_id"], 837056300)
+        self.assertEqual([segment["type"] for segment in opener.body["message"]], ["text"])
+        self.assertIn("[CQ:at,qq=all]", opener.body["message"][0]["data"]["text"])
+        with self.assertRaises(ValueError):
+            send_all_group_onebot(dict(self.config, all_alert_group_id=1), "x", opener)
+
+    def test_all_alert_group_gets_normal_and_priority_without_mentions(self):
+        all_group_messages = []
+        private_messages = []
+        config = dict(self.config, group_priority_only=True, all_alert_group_id=837056300,
+                      private_forward_qq="2731538103")
+        self.monitor = Monitor(config, self.path, sender=self.send,
+            all_group_sender=lambda cfg, text: all_group_messages.append(text) or len(all_group_messages),
+            fetcher=lambda s, c: [dict(i) for i in self.catalog], classifier_type=NoAI)
+        self.monitor.private_sender = lambda cfg, text: private_messages.append(text) or len(private_messages)
+
+        self.catalog = [product(price="50", stock=4)]
+        self.poll()
+        self.assertEqual(self.messages, [])
+        self.assertEqual(len(all_group_messages), 1)
+        self.assertEqual(len(private_messages), 1)
+
+        self.catalog.append(dict(product(title="team5x 3h速刷 账密2FA", price="39", stock=4),
+                                 id="priority", url="https://wzyp.cn/item/priority"))
+        self.poll()
+        self.assertEqual(self.mentions, [("3294692833", "1920924896")])
+        self.assertEqual(len(all_group_messages), 2)
+        self.assertEqual(len(private_messages), 2)
+        self.assertIn("低价2FA速刷提醒", all_group_messages[-1])
+        recipients = [delivery["recipient"] for delivery in self.monitor.state["deliveries"]]
+        self.assertEqual(recipients, ["837056300", "2731538103", "group", "837056300", "2731538103"])
+
+    def test_destination_failure_retries_only_failed_group(self):
+        all_group_calls = []
+        private_messages = []
+        config = dict(self.config, group_priority_only=True, all_alert_group_id=837056300,
+                      private_forward_qq="2731538103")
+
+        def all_group_fail(cfg, text):
+            all_group_calls.append("fail")
+            raise RuntimeError("all group down")
+
+        self.catalog = [product(title="team5x 3h速刷 账密2FA", price="39", stock=4)]
+        self.monitor = Monitor(config, self.path, sender=self.send, all_group_sender=all_group_fail,
+            fetcher=lambda s, c: [dict(i) for i in self.catalog], classifier_type=NoAI)
+        self.monitor.private_sender = lambda cfg, text: private_messages.append(text) or 88
+        self.poll()
+        pending = load_state(self.path)["pending"]
+        self.assertEqual(len(pending), 1)
+        self.assertTrue(pending[0]["group_sent"])
+        self.assertFalse(pending[0]["all_group_sent"])
+        self.assertTrue(pending[0]["private_sent"])
+        self.assertEqual((len(self.messages), len(private_messages)), (1, 1))
+
+        self.monitor.all_group_sender = lambda cfg, text: all_group_calls.append("ok") or 99
+        self.monitor.deliver(time.time())
+        self.assertEqual(all_group_calls, ["fail", "ok"])
+        self.assertEqual((len(self.messages), len(private_messages)), (1, 1))
+        self.assertEqual(self.monitor.state["pending"], [])
+        self.assertEqual([d["recipient"] for d in self.monitor.state["deliveries"]],
+                         ["group", "2731538103", "837056300"])
+
+    def test_existing_pending_is_not_backfilled_to_new_group(self):
+        self.poll()
+        self.monitor.state["pending"] = [{
+            "text": "升级前待发", "id": "legacy", "created": time.time(), "attempts": 0,
+            "group_sent": False, "private_sent": True, "events": [], "refs": {},
+        }]
+        self.monitor.save()
+        config = dict(self.config, all_alert_group_id=837056300)
+        restarted = Monitor(config, self.path, sender=self.send,
+                            all_group_sender=lambda cfg, text: self.fail("must not backfill"),
+                            fetcher=self.monitor.fetcher, classifier_type=NoAI)
+        self.assertTrue(restarted.state["pending"][0]["all_group_sent"])
+        self.assertTrue(restarted.state["pending"][0]["all_group_migration_suppressed"])
 
     def test_low_price_2fa_mentions_only_new_and_last_five(self):
         self.catalog = [product(title="team5x 3h速刷 账密2FA", price="39.99", stock=4)]
