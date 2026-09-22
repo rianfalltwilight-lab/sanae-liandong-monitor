@@ -244,6 +244,26 @@ class RuntimeTests(unittest.TestCase):
         self.poll()
         self.assertEqual(len(self.messages), 2)
 
+    def test_group_priority_only_suppresses_normal_alerts_but_keeps_private_copy(self):
+        private_messages = []
+        config = dict(self.config, group_priority_only=True, private_forward_qq="2731538103")
+        self.monitor = Monitor(config, self.path, sender=self.send,
+                               fetcher=lambda s, c: [dict(i) for i in self.catalog], classifier_type=NoAI)
+        self.monitor.private_sender = lambda cfg, text: private_messages.append(text) or 100 + len(private_messages)
+
+        self.catalog = [product(price="50", stock=4)]
+        self.poll()
+        self.assertEqual(self.messages, [])
+        self.assertEqual(len(private_messages), 1)
+        self.assertEqual([d["recipient"] for d in self.monitor.state["deliveries"]], ["2731538103"])
+
+        self.catalog.append(dict(product(title="team5x 3h速刷 账密2FA", price="39", stock=4),
+                                 id="special", url="https://wzyp.cn/item/special"))
+        self.poll()
+        self.assertEqual(len(self.messages), 1)
+        self.assertEqual(self.mentions, [("3294692833", "1920924896")])
+        self.assertEqual(len(private_messages), 2)
+
     def test_policy_migration_discards_old_pending_without_resending_catalog(self):
         self.catalog = [product(title="team5x 3h速刷 账密2FA", price="39")]
         self.poll()

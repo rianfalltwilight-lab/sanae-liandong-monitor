@@ -252,6 +252,7 @@ class Monitor:
                     entry["private_sent"] = all(old.get("private_sent", False) for old in matches)
             self.save()
         private_enabled = self.config.get("private_forward_qq") == PRIVATE_FORWARD_QQ
+        group_priority_only = bool(self.config.get("group_priority_only", False))
         while self.state["pending"]:
             entry = self.state["pending"][0]
             if now - entry["created"] > self.config.get("pending_ttl_seconds", 120):
@@ -262,22 +263,38 @@ class Monitor:
             try:
                 if self.dry_run:
                     if not entry.get("group_sent"):
-                        print(entry["text"], flush=True)
-                        entry["group_sent"] = True
+                        if group_priority_only and not entry.get("mentions"):
+                            entry["group_sent"] = True
+                            entry["group_suppressed"] = True
+                            LOG.info("group_suppressed id=%s reason=priority_only", entry["id"])
+                        else:
+                            print(entry["text"], flush=True)
+                            entry["group_sent"] = True
                     if private_enabled:
                         entry["private_sent"] = True
                 else:
                     if not entry.get("group_sent"):
-                        if entry.get("mentions"):
+                        if group_priority_only and not entry.get("mentions"):
+                            entry["group_sent"] = True
+                            entry["group_suppressed"] = True
+                            LOG.info("group_suppressed id=%s reason=priority_only", entry["id"])
+                            self.save()
+                        elif entry.get("mentions"):
                             receipt = self.sender(self.config, entry["text"], mentions=tuple(entry["mentions"]))
+                            entry["group_sent"] = True
+                            self.state["deliveries"].append({"id": entry["id"], "recipient": "group",
+                                                              "message_id": receipt, "sent_at": now,
+                                                              "mentions": entry.get("mentions", [])})
+                            self.state["deliveries"] = self.state["deliveries"][-400:]
+                            self.save()
                         else:
                             receipt = self.sender(self.config, entry["text"])
-                        entry["group_sent"] = True
-                        self.state["deliveries"].append({"id": entry["id"], "recipient": "group",
-                                                          "message_id": receipt, "sent_at": now,
-                                                          "mentions": entry.get("mentions", [])})
-                        self.state["deliveries"] = self.state["deliveries"][-400:]
-                        self.save()
+                            entry["group_sent"] = True
+                            self.state["deliveries"].append({"id": entry["id"], "recipient": "group",
+                                                              "message_id": receipt, "sent_at": now,
+                                                              "mentions": entry.get("mentions", [])})
+                            self.state["deliveries"] = self.state["deliveries"][-400:]
+                            self.save()
                     if private_enabled and not entry.get("private_sent"):
                         receipt = self.private_sender(self.config, entry["text"])
                         entry["private_sent"] = True
